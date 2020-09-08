@@ -1,2 +1,5 @@
 flask 
 pytest  
+flask_cors
+pymongo
+python-dotenv
