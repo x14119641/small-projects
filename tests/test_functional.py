@@ -1,25 +1,18 @@
 import pytest
 from app import create_app
 from app.extensions import mongo
-import logging
-import os
-from pymongo import MongoClient
 
+from pymongo import MongoClient
+from lxml import html
 
 
 @pytest.fixture
 def client():
-    settings_path = os.path.join(
-        os.path.abspath(__name__), "settings.csg"
-    )
-    print(os.path.abspath(__file__))
-    print('#####',settings_path)
     app = create_app()
     app.config["TESTING"] = True
-    #mongo = MongoClient()
-    #mongo.init_app(app)
+
     client = app.test_client()
-    #with app.test_client() as client:
+
     with app.app_context():          
         pass
              
@@ -30,5 +23,9 @@ def client():
 def test_index(client):
     res = client.get('/')
     assert res.status_code == 200
-    assert b"Index" in res.data
+    tree = html.fromstring(res.data)
+    
+    assert "Home" in tree.xpath('//title/text()')
+    #print(res.data)
+    assert "Navbar" in tree.xpath('//nav/a/text()')
     assert "name" in mongo.db.users.find_one({})

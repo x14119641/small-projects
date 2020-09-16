@@ -9,7 +9,6 @@ def create_app(config_object="app.settings"):
     CORS(app)
 
     app.config.from_object(config_object)
-    print(app.config)
     
     
     app.register_blueprint(bp)

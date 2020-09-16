@@ -1,3 +1,3 @@
 *__pycache__/
 .pytest_cache
-op_eng_test/
+op_eng_test/*pdf

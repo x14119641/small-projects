@@ -3,3 +3,6 @@ pytest
 flask_cors
 pymongo
 python-dotenv
+pandas
+lxml 
+requests
