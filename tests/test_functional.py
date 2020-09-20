@@ -1,7 +1,7 @@
 import pytest
 from app import create_app
 from app.extensions import mongo
-
+import json
 from lxml import html
 
 
@@ -18,7 +18,6 @@ def client():
         yield client
     
 
-
 def test_index(client):
     res = client.get('/')
     assert res.status_code == 200
@@ -29,10 +28,18 @@ def test_index(client):
     assert "name" in mongo.db.users.find_one({})
 
 
+def test_music_data(client):
+    res = client.get("/music-data")
+    assert res.status_code == 200
+    tree = html.fromstring(res.data)
+    json_data = tree.xpath("//div[@id = 'music_data']/text()")
+    assert len(json.loads(json_data[0])) == 5
+
+
+
 def test_create_delete_db():
     test_db = mongo.test_db
     test_db.test_collection.insert_one({'my_key': 'example'})
-    print(test_db.test_collection.find_one({}))
 
     assert 'test_collection' in test_db.list_collection_names()
     assert "my_key" in test_db.test_collection.find_one({})
@@ -51,18 +58,14 @@ def test_push_another_object_to_list_in_mongo():
                 "my_dict_list": [{"name":"BATIRI RI"}]
                 }
     test_db = mongo.test_db
-    print(test_db)
-    test_db.test_collection2.drop()
     test_db.test_collection2.insert_one(mock_doc1)
-    print(test_db)
+
     assert 'test_collection2' in test_db.list_collection_names()
+    
     query = test_db.test_collection2.find_one({})
-    print(query)
     assert "BATIRI RCA" == query['my_dict_list'][0].get('name')
 
     # update list
-    print(mock_doc2["my_dict_list"][0])
-    
     if test_db.test_collection2.find_one({"id":"id1"}):
         test_db.test_collection2.update(
             {"id":"id1"},
@@ -70,20 +73,11 @@ def test_push_another_object_to_list_in_mongo():
             )
     
     query = test_db.test_collection2.find_one({})
-    print(query)
+
     assert "BATIRI" == query['my_dict_list'][1].get('name')
 
 
     # dont update list if element in array does exist
-    query_dict_doc = test_db.test_collection2.find({
-        "my_dict_list": { "$elemMatch": {"name":"BATIRI"}}
-    })
-    # query_dict_doc = test_db.test_collection2.find({
-    #     "id":"id1", "my_dict_list.name": {"$exists":"true"}
-    # })
-    # query_dict_doc = test_db.test_collection2.find({
-    #     "my_dict_list": {"$elemMatch": {"name":"BATIRI"}}
-    # })
     query_dict_doc = test_db.test_collection2.find_one( {
                             "my_dict_list": { "$elemMatch": { "name": "BATIRI" } }
                             })
