@@ -36,6 +36,13 @@ def test_music_data(client):
     assert len(json.loads(json_data[0])) == 5
 
 
+def test_retrieve_metadata(client):
+    res = client.get("/music-data/T0420889173")
+    assert res.status_code == 200
+    tree = html.fromstring(res.data)
+    json_data = tree.xpath("//div[@id = 'music_data']/text()")
+    assert len(json.loads(json_data[0])) == 3
+
 
 def test_create_delete_db():
     test_db = mongo.test_db

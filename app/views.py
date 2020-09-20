@@ -20,3 +20,8 @@ def music_data():
     data = dumps(data)
     return render_template('public/music_data.html', data = data)
 
+
+@bp.route('/music-data/<id>')
+def retrieve_metadata(id):
+    data = mongo.music_dataset.music_collection.find_one({"iswc":id})["right_owners"]
+    return render_template('public/music_data.html', data = dumps(data))

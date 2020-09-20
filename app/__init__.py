@@ -23,8 +23,6 @@ def create_app(config_object="app.settings"):
 
 def insert_op_test_data():
     """Insert data into db"""
-    print('HERE')
     mongo.music_dataset.music_collection.drop()
     if not 'music_collection' in mongo.music_dataset.collection_names():
-        print('2')
         load_to_mongo()
